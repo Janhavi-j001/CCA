@@ -139,3 +139,114 @@ int main()
 
 	return 0;
 }
+...............................................................................................................
+
+	#include <iostream>
+#include <climits>
+
+#define MAX_VERTICES 100
+#define MAX_EDGES 100
+
+// Structure to represent an edge in the graph
+struct Edge {
+    int source, destination, weight;
+};
+
+// Structure to represent a graph
+struct Graph {
+    int V, E; // Number of vertices and edges
+    Edge edge[MAX_EDGES]; // Array to store edges
+};
+
+// Function to initialize a graph with given vertices and edges
+void initializeGraph(Graph *graph, int vertices, int edges) {
+    graph->V = vertices;
+    graph->E = edges;
+}
+
+// Function to relax an edge (update the distance if a shorter path is found)
+void relax(int dist[], int source, int destination, int weight) {
+    if (dist[source] != INT_MAX && dist[source] + weight < dist[destination]) {
+        dist[destination] = dist[source] + weight;
+    }
+}
+
+// Function to perform Bellman-Ford algorithm
+void bellmanFord(Graph *graph, int source) {
+    int V = graph->V;
+    int E = graph->E;
+    int dist[MAX_VERTICES];
+
+    // Initialize distances from source to all other vertices as infinity
+    for (int i = 0; i < V; i++) {
+        dist[i] = INT_MAX;
+    }
+    dist[source] = 0; // Distance from source to itself is 0
+
+    // Relax all edges |V| - 1 times
+    for (int i = 1; i <= V - 1; i++) {
+        for (int j = 0; j < E; j++) {
+            relax(dist, graph->edge[j].source, graph->edge[j].destination, graph->edge[j].weight);
+        }
+    }
+
+    // Check for negative weight cycles
+    for (int i = 0; i < E; i++) {
+        int u = graph->edge[i].source;
+        int v = graph->edge[i].destination;
+        int weight = graph->edge[i].weight;
+        if (dist[u] != INT_MAX && dist[u] + weight < dist[v]) {
+            std::cout << "Graph contains negative weight cycle. Bellman-Ford cannot solve it." << std::endl;
+            return;
+        }
+    }
+
+    // Print the distances
+    std::cout << "Vertex   Distance from Source" << std::endl;
+    for (int i = 0; i < V; i++) {
+        std::cout << i << "\t\t" << dist[i] << std::endl;
+    }
+}
+
+// Driver program to test the functions
+int main() {
+    Graph graph;
+    int vertices, edges, source;
+
+    // Input: Number of vertices, edges, and the source vertex
+    std::cout << "Enter the number of vertices: ";
+    std::cin >> vertices;
+
+    std::cout << "Enter the number of edges: ";
+    std::cin >> edges;
+
+    initializeGraph(&graph, vertices, edges);
+
+    // Input the edges (source, destination, weight)
+    for (int i = 0; i < edges; i++) {
+        std::cout << "Enter edge " << i + 1 << " (source destination weight): ";
+        std::cin >> graph.edge[i].source >> graph.edge[i].destination >> graph.edge[i].weight;
+    }
+
+    std::cout << "Enter the source vertex: ";
+    std::cin >> source;
+
+    // Perform Bellman-Ford algorithm
+    bellmanFord(&graph, source);
+
+    return 0;
+}
+output :
+Enter the number of vertices: 4
+Enter the number of edges: 5
+Enter edge 1 (source destination weight): 0 1 10
+Enter edge 2 (source destination weight): 1 3 15
+Enter edge 3 (source destination weight): 2 3 4
+Enter edge 4 (source destination weight): 0 2 6
+Enter edge 5 (source destination weight): 0 3 5
+Enter the source vertex: 0
+Vertex   Distance from Source
+0               0
+1               10
+2               6
+3               5
