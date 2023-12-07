@@ -98,3 +98,10 @@ int main() {
 
     return 0;
 }
+input: 
+Enter the number of cities: 4
+Enter the cost matrix for traveling between cities:
+0 10 15 20
+5 0 9 10
+6 13 0 12
+8 8 9 0
