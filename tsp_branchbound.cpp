@@ -110,3 +110,129 @@ int main() {
 
     return 0;
 }
+................................................................................................................................
+
+    #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <limits>
+
+const int INF = std::numeric_limits<int>::max();
+
+class TSP {
+public:
+    TSP(int numVertices);
+
+    void solve();
+
+private:
+    void branchAndBound();
+    int calculateBound(const std::vector<int>& path);
+    void addToPath(int vertex);
+    void removeFromPath(int vertex);
+    void printSolution();
+
+    int numVertices;
+    std::vector<std::vector<int>> costMatrix;
+    std::vector<int> currentPath;
+    std::vector<int> bestPath;
+    int bestCost;
+};
+
+TSP::TSP(int numVertices) : numVertices(numVertices), bestCost(INF) {
+    // Initialize paths
+    currentPath.resize(numVertices);
+    bestPath.resize(numVertices);
+
+    for (int i = 0; i < numVertices; ++i) {
+        currentPath[i] = bestPath[i] = i;
+    }
+
+    // Input: Cost matrix for traveling between cities
+    costMatrix.resize(numVertices, std::vector<int>(numVertices, 0));
+
+    std::cout << "Enter the cost matrix for traveling between cities (Enter INF for not connected):\n";
+    for (int i = 0; i < numVertices; ++i) {
+        for (int j = 0; j < numVertices; ++j) {
+            std::cin >> costMatrix[i][j];
+        }
+    }
+}
+
+void TSP::solve() {
+    branchAndBound();
+    printSolution();
+}
+
+void TSP::branchAndBound() {
+    do {
+        int currentCost = calculateBound(currentPath);
+
+        if (currentCost < bestCost) {
+            bestCost = currentCost;
+            bestPath = currentPath;
+        }
+    } while (std::next_permutation(currentPath.begin() + 1, currentPath.end()));
+}
+
+int TSP::calculateBound(const std::vector<int>& path) {
+    int bound = 0;
+
+    for (int i = 0; i < numVertices - 1; ++i) {
+        if (costMatrix[path[i]][path[i + 1]] == INF) {
+            return INF;
+        }
+        bound += costMatrix[path[i]][path[i + 1]];
+    }
+
+    bound += costMatrix[path.back()][path[0]]; // Return to the starting city
+
+    return bound;
+}
+
+void TSP::addToPath(int vertex) {
+    for (int i = numVertices - 2; i > 0; --i) {
+        currentPath[i + 1] = currentPath[i];
+    }
+    currentPath[1] = vertex;
+}
+
+void TSP::removeFromPath(int vertex) {
+    for (int i = 1; i < numVertices - 1; ++i) {
+        if (currentPath[i] == vertex) {
+            currentPath.erase(currentPath.begin() + i);
+            break;
+        }
+    }
+}
+
+void TSP::printSolution() {
+    std::cout << "Optimal Path: ";
+    for (int vertex : bestPath) {
+        std::cout << vertex << " ";
+    }
+    std::cout << bestPath[0] << std::endl;
+
+    std::cout << "Optimal Cost: " << bestCost << std::endl;
+}
+
+int main() {
+    int numVertices;
+
+    // Input: Number of cities
+    std::cout << "Enter the number of cities: ";
+    std::cin >> numVertices;
+
+    TSP tsp(numVertices);
+    tsp.solve();
+
+    return 0;
+}
+Enter the number of cities: 4
+Enter the cost matrix for traveling between cities (Enter INF for not connected):
+0 10 15 20
+5 0 9 10
+6 13 0 12
+8 8 9 0
+Optimal Path: 0 1 3 2 0
+Optimal Cost: 35
