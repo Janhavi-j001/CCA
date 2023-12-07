@@ -1,0 +1,326 @@
+// quick sort
+
+function quicksort(arr):
+    if length(arr) <= 1:
+        return arr
+    else:
+        pivot = selectPivot(arr)
+        less = [elements in arr if elements < pivot]
+        equal = [elements in arr if elements == pivot]
+        greater = [elements in arr if elements > pivot]
+        return quicksort(less) + equal + quicksort(greater)
+
+function selectPivot(arr):
+    // Choose a pivot strategy (e.g., median of three, random, etc.)
+    // Return the selected pivot element
+
+time:O(N log N)	
+space: O(N)
+..........................................................................
+// merge sort
+
+function mergesort(arr):
+    if length(arr) <= 1:
+        return arr
+    else:
+        middle = length(arr) / 2
+        left = mergesort(arr[:middle])
+        right = mergesort(arr[middle:])
+        return merge(left, right)
+
+function merge(left, right):
+    result = []
+    while left is not empty and right is not empty:
+        if left[0] <= right[0]:
+            result.append(left[0])
+            left = left[1:]
+        else:
+            result.append(right[0])
+            right = right[1:]
+    return result + left + right
+time:O(N log N)	
+space: O(N)
+..........................................................................
+
+// binary search
+
+function binarySearch(arr, target):
+    if length(arr) == 0:
+        return -1  // Element not found
+    else:
+        middle = length(arr) / 2
+        if arr[middle] == target:
+            return middle
+        else if arr[middle] < target:
+            return middle + binarySearch(arr[middle+1:], target)
+        else:
+            return binarySearch(arr[:middle], target)
+ time: O(log n)	
+space: O(1)
+......................................................................
+
+//min max
+
+function findMinMax(arr, low, high):
+    if low == high:
+        return arr[low], arr[low]
+    else if high - low == 1:
+        return min(arr[low], arr[high]), max(arr[low], arr[high])
+    else:
+        mid = (low + high) / 2
+        min1, max1 = findMinMax(arr, low, mid)
+        min2, max2 = findMinMax(arr, mid+1, high)
+        return min(min1, min2), max(max1, max2)
+time:o(n)
+space:o(log n)
+
+........................................................................
+// kruskals algo
+
+function kruskalsAlgorithm(graph):
+    // Initialize an empty minimum spanning tree
+    minimumSpanningTree = []
+
+    // Create a disjoint set for each vertex in the graph
+    disjointSets = initializeDisjointSets(graph.vertices)
+
+    // Sort the edges of the graph in non-decreasing order of weight
+    sortedEdges = sortEdges(graph.edges)
+
+    // Iterate through each edge in sorted order
+    for edge in sortedEdges:
+        // Check if adding the current edge forms a cycle in the minimum spanning tree
+        if find(disjointSets, edge.start) != find(disjointSets, edge.end):
+            // If not, add the edge to the minimum spanning tree
+            minimumSpanningTree.append(edge)
+
+            // Union the sets of the vertices connected by the edge
+            union(disjointSets, edge.start, edge.end)
+
+    return minimumSpanningTree
+
+function initializeDisjointSets(vertices):
+    // Create a disjoint set for each vertex with itself as the representative
+    sets = []
+    for vertex in vertices:
+        sets[vertex] = makeSet(vertex)
+    return sets
+
+function sortEdges(edges):
+    // Sort the edges in non-decreasing order of weight
+    return sort(edges)  // Implement a sorting algorithm (e.g., quicksort, mergesort)
+
+function find(disjointSets, vertex):
+    // Find the representative of the set containing the given vertex
+    return disjointSets[vertex]
+
+function union(disjointSets, vertex1, vertex2):
+    // Union the sets containing vertex1 and vertex2 by updating their representatives
+    set1 = find(disjointSets, vertex1)
+    set2 = find(disjointSets, vertex2)
+    disjointSets[set1] = set2
+
+function makeSet(vertex):
+    // Create a set with the given vertex as its representative
+    return vertex
+.................................................................
+//prims algo
+
+function primsAlgorithm(graph):
+    // Initialize an empty minimum spanning tree
+    minimumSpanningTree = []
+
+    // Select an arbitrary starting vertex
+    startVertex = chooseStartVertex(graph.vertices)
+
+    // Create a priority queue and add all edges connected to the startVertex
+    priorityQueue = initializePriorityQueue(graph.edges, startVertex)
+
+    // Create a set to keep track of visited vertices
+    visitedVertices = createEmptySet()
+
+    // Mark the startVertex as visited
+    visitedVertices.add(startVertex)
+
+    // Repeat until all vertices are visited
+    while not allVerticesVisited(graph.vertices, visitedVertices):
+        // Extract the minimum-weight edge from the priority queue
+        currentEdge = priorityQueue.extractMin()
+
+        // If adding the current edge doesn't create a cycle
+        if currentEdge.end not in visitedVertices:
+            // Add the edge to the minimum spanning tree
+            minimumSpanningTree.append(currentEdge)
+
+            // Mark the end vertex of the edge as visited
+            visitedVertices.add(currentEdge.end)
+
+            // Add all edges connected to the current edge's end vertex to the priority queue
+            updatePriorityQueue(priorityQueue, graph.edges, currentEdge.end, visitedVertices)
+
+    return minimumSpanningTree
+
+function chooseStartVertex(vertices):
+    // Choose an arbitrary starting vertex (e.g., the first vertex in the list)
+    return vertices[0]
+
+function initializePriorityQueue(edges, startVertex):
+    // Create a priority queue and add all edges connected to the startVertex
+    priorityQueue = createEmptyPriorityQueue()
+    for edge in edges.connectedTo(startVertex):
+        priorityQueue.insert(edge)
+    return priorityQueue
+
+function createEmptySet():
+    // Create an empty set data structure
+    return Set()
+
+function allVerticesVisited(vertices, visitedVertices):
+    // Check if all vertices have been visited
+    return len(visitedVertices) == len(vertices)
+
+function updatePriorityQueue(priorityQueue, edges, vertex, visitedVertices):
+    // Add all edges connected to the given vertex to the priority queue
+    for edge in edges.connectedTo(vertex):
+        if edge.end not in visitedVertices:
+            priorityQueue.insert(edge)
+
+function createEmptyPriorityQueue():
+    // Create an empty priority queue data structure
+    return PriorityQueue()
+......................................................................
+
+// TSP
+function tspDynamicProgramming(graph):
+    n = number of vertices in graph
+    memoizationTable = createMemoizationTable(2^n, n)
+    
+    // Initialize the memoization table with a large value indicating no solution
+    for i from 0 to 2^n - 1:
+        for j from 0 to n - 1:
+            memoizationTable[i][j] = INFINITY
+    
+    // Base case: when only one vertex is visited
+    for i from 0 to n - 1:
+        memoizationTable[1 << i][i] = 0
+    
+    // Iterate over all subsets of vertices
+    for mask from 1 to 2^n - 1:
+        for u from 0 to n - 1:
+            if (mask & (1 << u)) != 0:
+                for v from 0 to n - 1:
+                    if (mask & (1 << v)) != 0 and u != v:
+                        memoizationTable[mask][u] = min(
+                            memoizationTable[mask][u],
+                            memoizationTable[mask ^ (1 << u)][v] + graph[v][u]
+                        )
+    
+    // Find the minimum cost of visiting all vertices
+    mask = (1 << n) - 1
+    minCost = INFINITY
+    for u from 0 to n - 1:
+        minCost = min(minCost, memoizationTable[mask][u] + graph[u][0])
+    
+    return minCost
+
+function createMemoizationTable(rows, cols):
+    table = new 2D array with dimensions rows x cols
+    return table
+........................................................................
+// TSP branch
+
+function tspBranchAndBound(graph):
+    n = number of vertices in graph
+    priorityQueue = createPriorityQueue()
+    initialNode = createInitialNode(graph, n)
+    bestCost = INFINITY
+    
+    // Enqueue the initial node
+    priorityQueue.enqueue(initialNode)
+    
+    // Branch and Bound main loop
+    while not priorityQueue.isEmpty():
+        currentNode = priorityQueue.dequeue()
+        
+        // If the current node cannot lead to a better solution, prune it
+        if currentNode.lowerBound >= bestCost:
+            continue
+        
+        // If the current node is a leaf, update the best cost if needed
+        if currentNode.level == n - 1:
+            bestCost = min(bestCost, currentNode.cost + graph[currentNode.path[-1]][0])
+        
+        // Generate child nodes and enqueue them
+        for i from 0 to n - 1:
+            if i not in currentNode.path:
+                childNode = createChildNode(currentNode, graph, i)
+                priorityQueue.enqueue(childNode)
+    
+    return bestCost
+
+function createPriorityQueue():
+    // Create an empty priority queue data structure
+    return PriorityQueue()
+
+function createInitialNode(graph, n):
+    // Create the initial node with the starting vertex and a lower bound of 0
+    initialNode = Node()
+    initialNode.level = 0
+    initialNode.path = [0]
+    initialNode.cost = 0
+    initialNode.lowerBound = calculateLowerBound(initialNode, graph, n)
+    return initialNode
+
+function createChildNode(parentNode, graph, vertex):
+    // Create a child node by extending the parent node with the given vertex
+    childNode = Node()
+    childNode.level = parentNode.level + 1
+    childNode.path = parentNode.path.copy()
+    childNode.path.append(vertex)
+    childNode.cost = parentNode.cost + graph[parentNode.path[-1]][vertex]
+    childNode.lowerBound = calculateLowerBound(childNode, graph, len(graph))
+    return childNode
+
+function calculateLowerBound(node, graph, n):
+    // Calculate the lower bound for a given node using a suitable heuristic
+    // (e.g., minimum spanning tree, nearest neighbor)
+    // Return the lower bound value
+    // Note: Implementing the heuristic is specific to the problem instance
+    // and can be adapted based on the characteristics of the graph.
+    return heuristicFunction(node, graph, n)
+..........................................................................
+// bellman ford
+
+function bellmanFord(graph, source):
+    // Initialize distances and predecessors
+    distance[source] = 0
+    predecessor[source] = null
+    
+    // Relax edges repeatedly
+    for i from 1 to (number of vertices - 1):
+        for each edge (u, v) in graph.edges:
+            if distance[u] + weight(u, v) < distance[v]:
+                distance[v] = distance[u] + weight(u, v)
+                predecessor[v] = u
+
+    // Check for negative cycles
+    for each edge (u, v) in graph.edges:
+        if distance[u] + weight(u, v) < distance[v]:
+            // Negative cycle detected
+            return "Negative cycle found"
+
+    // No negative cycles found, return the distances and predecessors
+    return distance, predecessor
+
+// Helper function to get the weight of an edge
+function weight(u, v):
+    return weight of the edge (u, v) in the graph
+
+// Example usage:
+result = bellmanFord(graph, source)
+if result == "Negative cycle found":
+    print("Graph contains a negative cycle")
+else:
+    distances, predecessors = result
+    // Use distances and predecessors as needed
+....................................................................
